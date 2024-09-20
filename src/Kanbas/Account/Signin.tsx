@@ -8,7 +8,7 @@ export default function Signin() {
       <Link  id="wd-signin-btn"
              to="/Kanbas/Dashboard"> Sign in </Link> <br />
       <Link  id="wd-signup-link" to="/Kanbas/Account/Signup">Sign up</Link>
-      <Link id="wd-signin-btn" to="/Kanbas/Dashboard"> Sign in</Link>
+      
       
     </div>
 );}
