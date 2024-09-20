@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 export default function AssignmentEditor() {
     return (
         <div id="wd-assignments-editor">
@@ -149,6 +150,19 @@ export default function AssignmentEditor() {
                         <input type="date" id="wd-text-vailable-from" value="2024-05-06" />
                         &nbsp;&nbsp;
                         <input type="date" id="wd-text-until" value="2024-05-20" />
+                    </td>
+                </tr>
+                <tr>
+                    &nbsp;
+                    <td>
+                        <Link to="/Kanbas/Courses/1234/Assignments">
+                            <button id="wd-add-assignment-edit"> Cancel</button>
+                        </Link>
+                        &nbsp;
+                    
+                        <Link to="/Kanbas/Courses/1234/Assignments">
+                            <button id="wd-save">Save</button>
+                        </Link>
                     </td>
                 </tr>
             </table>
