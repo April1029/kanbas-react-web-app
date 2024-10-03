@@ -14,10 +14,10 @@ export default function Courses() {
         <FaAlignJustify className="me-4 fs-4 mb-1" />Course 1234</h2>
       <hr />
       <div className="d-flex flex-wrap">
-        <div className="col-12 col-md-3 d-none d-md-block">
+        <div className="col-12 col-md-3 d-none d-md-block" style={{ maxWidth: "200px" }}>
           <CoursesNavigation />
         </div>
-        <div className="col-12 col-md-9 flex-fill">
+        <div className="col-12 col-md-9 flex-fill ">
           <Routes>
             <Route path="/" element={<Navigate to="Home" />} />
             <Route path="Home" element={<Home />} />

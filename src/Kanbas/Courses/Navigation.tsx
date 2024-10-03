@@ -2,8 +2,11 @@ import { Link, useLocation } from "react-router-dom";
 
 export default function CoursesNavigation() {
   const location = useLocation();  // Get the current path
+  const view = new URLSearchParams(location.search).get('view');
+  const isAssignmentPath = location.pathname.includes("/Assignments");
 
   return (
+    
     <div id="wd-courses-navigation" className="wd list-group fs-5 rounded-0">
       <Link
         to="/Kanbas/Courses/1234/Home"
@@ -36,7 +39,7 @@ export default function CoursesNavigation() {
       <Link
         to="/Kanbas/Courses/1234/Assignments"
         id="wd-course-assignments-link"
-        className={`list-group-item border border-0 ${location.pathname === "/Kanbas/Courses/1234/Assignments" ? "active" : "text-danger"}`}
+        className={`list-group-item border border-0 ${isAssignmentPath ? "active" : "text-danger"}`}
       >
         Assignments
       </Link><br />
