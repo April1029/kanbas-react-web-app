@@ -1,12 +1,51 @@
 import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import * as db from "../../Database";
+
+function formatToDateTimeLocal(dateStr: string) {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) {
+      console.error(`Invalid date: ${dateStr}`);
+      return "";
+    }
+  
+    // Format to 'yyyy-MM-ddThh:mm'
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+  
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
 
 export default function AssignmentEditor() {
+    const { cid, aid } = useParams(); // Get the course ID from the URL
+    const { assignments } = db; // Get the assignments from the database
+   // Find the selected assignment using the course and assignment ID
+    const courseAssignments = assignments.filter((assignment) => assignment.course === cid && assignment._id === aid);
+
+    // Log the filtered assignments
+    console.log("Filtered Course Assignments:", courseAssignments);
+
+    // Log the due date of the first assignment if it exists
+    if (courseAssignments.length > 0) {
+        console.log("Due Date:", courseAssignments[0]?.due);
+    } else {
+        console.log("No assignments found for this course and assignment ID.");
+    }
+
+    // Extract and format the due date
+  const dueDate = courseAssignments.length > 0 ? formatToDateTimeLocal(courseAssignments[0].due) : "";
+  // Extract and format the available from date
+    const availableFromDate = courseAssignments.length > 0 ? formatToDateTimeLocal(courseAssignments[0].notAvailable) : "";
+
     return (
         <div id="wd-assignments-editor" className="container">
             <div className="row mb-3">
                 <div className="col-12">
                     <label htmlFor="wd-name" className="form-label"><strong>Assignment Name</strong></label>
-                    <input id="wd-name" className="form-control" value="A1" />
+                    <input id="wd-name" className="form-control" value={courseAssignments[0].title} />
                 </div>
             </div>
 
@@ -110,18 +149,18 @@ export default function AssignmentEditor() {
                         </div>
                     </div>
                     <div className=" d-flex align-items-center mb-2 form-check" style={{ marginLeft: '140px' }}>
-                        <input type="datetime-local" id="wd-text-fields-due-date" className="form-control" value="2024-05-13T12:30" />
+                        <input type="datetime-local" id="wd-text-fields-due-date" className="form-control" value={dueDate} />
                     </div>
 
                     <div className="d-flex align-items-center mb-2">
                         <div className="col-12 col-md-2" style={{ marginLeft: '165px' }}>
                             <label htmlFor="wd-available-from" className="form-label">Available From</label>
-                            <input type="datetime-local" id="wd-available-from" className="form-control" value="2024-05-06T12:30" />
+                            <input type="datetime-local" id="wd-available-from" className="form-control" value={availableFromDate} />
                         </div>
                         <div className="col-12 col-md-1"></div>
                         <div className="col-12 col-md-2">
                             <label htmlFor="wd-until" className="form-label mr-2">Until</label>
-                            <input type="datetime-local" id="wd-until" className="form-control" value="2024-05-20T12:30" />
+                            <input type="datetime-local" id="wd-until" className="form-control" value={dueDate} />
                         </div>
                     </div>
 

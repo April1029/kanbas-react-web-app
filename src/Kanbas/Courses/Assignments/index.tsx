@@ -1,3 +1,4 @@
+import { useParams } from "react-router-dom";
 import AssignmentControls from "./AssignmentControls";
 import { BsGripVertical } from "react-icons/bs";
 import LessonControlButtons from "../Modules/LessonControlButtons";
@@ -5,6 +6,7 @@ import { MdArrowDropDown } from "react-icons/md";
 import { FaPlus } from "react-icons/fa6";
 import { IoNewspaperOutline } from "react-icons/io5";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import * as db from "../../Database";
 
 
 interface AssignmentInfo {
@@ -37,7 +39,36 @@ function AssignmentCard({ title, info }: AssignmentCardProps) {
   );
 }
 
+function formatDateTime(dateStr: string) {
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) {
+    console.error(`Invalid date: ${dateStr}`);
+    return dateStr;
+  }
+
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    month: 'short',
+    day: 'numeric',
+  };
+
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  };
+
+  const formattedDate = new Intl.DateTimeFormat('en-US', dateOptions).format(date);
+  const formattedTime = new Intl.DateTimeFormat('en-US', timeOptions).format(date);
+
+  return `${formattedDate} at ${formattedTime}`;
+}
+
 export default function Assignments() {
+  const { cid } = useParams(); // Get the course ID from the URL
+  const { assignments } = db; // Get the assignments from the database
+
+  // Filter assignments based on the course ID
+  const courseAssignments = assignments.filter((assignment) => assignment.course === cid);
   return (
     <div>
       <AssignmentControls /><br /><br />
@@ -52,51 +83,23 @@ export default function Assignments() {
               <FaPlus className="me-2" />
               <BsThreeDotsVertical />
             </div>
-
-
           </div>
           <ul className="wd-lessons list-group rounded-0">
-            <li className="wd-lesson list-group-item p-0">
-              <a className="wd-assignment-link text-decoration-none text-black"
-                href="#/Kanbas/Courses/1234/Assignments/123">
-                <AssignmentCard
-                  title="A1"
-                  info={{
-                    modules: "Multiple Modules",
-                    notAvailable: "May 6 at 12:00 am",
-                    due: "May 13 at 11:59 pm | 100 pts"
-                  }}
-                />
-              </a>
-
-            </li>
-            <li className="wd-lesson list-group-item p-0">
-              <a className="wd-assignment-link text-decoration-none text-black"
-                href="#/Kanbas/Courses/1234/Assignments/123">
-                <AssignmentCard
-                  title="A2"
-                  info={{
-                    modules: "Multiple Modules",
-                    notAvailable: "May 13 at 12:00 am",
-                    due: "May 20 at 11:59 pm | 100 pts"
-                  }}
-                />
-              </a>
-            </li>
-            <li className="wd-lesson list-group-item p-0">
-              <a className="wd-assignment-link text-decoration-none text-black"
-                href="#/Kanbas/Courses/1234/Assignments/123">
-                <AssignmentCard
-                  title="A3"
-                  info={{
-                    modules: "Multiple Modules",
-                    notAvailable: "May 20 at 12:00 am",
-                    due: "May 27 at 11:59 pm | 100 pts"
-                  }}
-                />
-              </a>
-            </li>
-
+            {courseAssignments.map((assignment: any) => (
+              <li className="wd-lesson list-group-item p-0" key={assignment._id}>
+                <a className="wd-assignment-link text-decoration-none text-black"
+                  href={`#/Kanbas/Courses/${cid}/Assignments/${assignment._id}`} >
+                  <AssignmentCard
+                    title={assignment.title}
+                    info={{
+                      modules: assignment.modules,
+                      notAvailable: formatDateTime(assignment.notAvailable),
+                      due: formatDateTime(assignment.due),
+                    }}
+                  />
+                </a>
+              </li>
+            ))}
           </ul>
         </li>
       </ul>
