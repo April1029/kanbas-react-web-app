@@ -5,24 +5,24 @@ import * as db from "../../Database";
 function formatToDateTimeLocal(dateStr: string) {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) {
-      console.error(`Invalid date: ${dateStr}`);
-      return "";
+        console.error(`Invalid date: ${dateStr}`);
+        return "";
     }
-  
+
     // Format to 'yyyy-MM-ddThh:mm'
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
     const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
-  
+
     return `${year}-${month}-${day}T${hours}:${minutes}`;
-  }
+}
 
 export default function AssignmentEditor() {
     const { cid, aid } = useParams(); // Get the course ID from the URL
     const { assignments } = db; // Get the assignments from the database
-   // Find the selected assignment using the course and assignment ID
+    // Find the selected assignment using the course and assignment ID
     const courseAssignments = assignments.filter((assignment) => assignment.course === cid && assignment._id === aid);
 
     // Log the filtered assignments
@@ -36,8 +36,8 @@ export default function AssignmentEditor() {
     }
 
     // Extract and format the due date
-  const dueDate = courseAssignments.length > 0 ? formatToDateTimeLocal(courseAssignments[0].due) : "";
-  // Extract and format the available from date
+    const dueDate = courseAssignments.length > 0 ? formatToDateTimeLocal(courseAssignments[0].due) : "";
+    // Extract and format the available from date
     const availableFromDate = courseAssignments.length > 0 ? formatToDateTimeLocal(courseAssignments[0].notAvailable) : "";
 
     return (
