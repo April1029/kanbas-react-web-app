@@ -1,108 +1,109 @@
-import { useParams } from "react-router-dom";
-import AssignmentControls from "./AssignmentControls";
+import { AssignmentsControlButtons } from "./AssignmentsControlButtons";
 import { BsGripVertical } from "react-icons/bs";
-import LessonControlButtons from "../Modules/LessonControlButtons";
-import { MdArrowDropDown } from "react-icons/md";
-import { FaPlus } from "react-icons/fa6";
-import { IoNewspaperOutline } from "react-icons/io5";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import * as db from "../../Database";
+import { BsPencilSquare } from "react-icons/bs";
+import { FaCaretDown } from "react-icons/fa";
+import { deleteAssignment } from "./reducer";
+import { useParams } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import AssignmentControl from "./AssignmentControl";
+import AssignmentIcons from "./AssignmentIcons"
 
-
-interface AssignmentInfo {
-  modules: string;
-  notAvailable: string;
-  due: string;
+interface Assignment {
+    _id: string;
+    title: string;
+    availabilityDate: string;
+    dueDate: string;
+    points: number;
+    link: string;
 }
 
-interface AssignmentCardProps {
-  title: string;
-  info: AssignmentInfo;
-}
+const AssignmentItem: React.FC<Assignment> = ({ _id, title, availabilityDate, dueDate, points, link }) => {
+    const dispatch = useDispatch();
 
-function AssignmentCard({ title, info }: AssignmentCardProps) {
-  return (
-    <div className="assignment-card d-flex align-items-center border-success p-3 ">
-      <div className="d-flex align-items-center me-3">
-        <BsGripVertical className="fs-3" />
-        <IoNewspaperOutline className="ms-2 fs-4" style={{ color: 'green' }} />
-      </div>
-      <div className="flex-grow-1">
-        <h5 className="assignment-title">{title}</h5>
-        <p className="assignment-info">
-          <span className="text-danger">{info.modules}</span> | <span><strong>Not available until </strong></span>{info.notAvailable} |  <span><strong>Due</strong> {info.due}</span>
-        </p>
-      </div>
-      <LessonControlButtons />
+    function formatDate(dateString: string) {
+        const date = new Date(dateString);
+        const options: Intl.DateTimeFormatOptions = {
+            month: 'long',
+            day: 'numeric'
+        };
+        return date.toLocaleDateString('en-US', options);
+    }
 
-    </div>
-  );
-}
-
-function formatDateTime(dateStr: string) {
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) {
-    console.error(`Invalid date: ${dateStr}`);
-    return dateStr;
-  }
-
-  const dateOptions: Intl.DateTimeFormatOptions = {
-    month: 'short',
-    day: 'numeric',
-  };
-
-  const timeOptions: Intl.DateTimeFormatOptions = {
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: true,
-  };
-
-  const formattedDate = new Intl.DateTimeFormat('en-US', dateOptions).format(date);
-  const formattedTime = new Intl.DateTimeFormat('en-US', timeOptions).format(date);
-
-  return `${formattedDate} at ${formattedTime}`;
-}
+    return (
+        <li className="wd-lesson list-group-item p-3 ps-1" style={{ borderLeft: '4px solid green' }}>
+            <a
+                className="d-flex align-items-center flex-grow-1 text-decoration-none"
+                href={link}
+                style={{ color: 'inherit' }}
+            >
+                <div className="d-flex align-items-center flex-grow-1">
+                    <BsGripVertical className="me-2 fs-3" />
+                    <BsPencilSquare className="me-3" />
+                    <span className="d-inline-block">
+                        <b>{title}</b>
+                        <div style={{ marginLeft: '0', fontSize: '0.8em' }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div style={{ color: 'red' }}>
+                                    <strong>Multiple Modules</strong>
+                                </div>
+                                <div style={{ marginLeft: '10px' }}>
+                                    | <strong style={{ marginLeft: '10px' }}>Not available until</strong> {formatDate(availabilityDate)}
+                                </div>
+                                <div style={{ marginLeft: '10px' }}>
+                                    |
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div>
+                                    <strong>Due</strong> {formatDate(dueDate)}
+                                </div>
+                                <div style={{ marginLeft: '10px' }}>
+                                    |
+                                </div>
+                                <div style={{ marginLeft: '10px' }}>
+                                    {points} pts
+                                </div>
+                            </div>
+                        </div>
+                    </span>
+                    <div style={{ marginLeft: "auto" }}>
+                        <AssignmentIcons onDelete={() => {
+                            dispatch(deleteAssignment(_id))
+                        }} />
+                    </div>
+                </div>
+            </a>
+        </li>
+    );
+};
 
 export default function Assignments() {
-  const { cid } = useParams(); // Get the course ID from the URL
-  const { assignments } = db; // Get the assignments from the database
+    const { cid } = useParams();
+    const { currentUser } = useSelector((state: any) => state.accountReducer);
+    const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+    const assignmentArray = assignments.filter((assignment: any) => assignment.course === cid);
 
-  // Filter assignments based on the course ID
-  const courseAssignments = assignments.filter((assignment) => assignment.course === cid);
-  return (
-    <div>
-      <AssignmentControls /><br /><br />
-      <ul id="wd-assignments" className="list-group rounded-0">
-        <li className="wd-assignment list-group-item p-0 mb-5 fs-5 border-gray">
-          <div className="wd-title d-flex align-items-center p-3 bg-secondary">
-            <BsGripVertical className="me-2 fs-3" />
-            <MdArrowDropDown className="me-2 fs-3" />
-            <strong>ASSIGNMENTS</strong>
-            <div className="ms-auto">
-              <button className="btn btn-outline-secondary rounded-pill me-2">40% of total</button>
-              <FaPlus className="me-2" />
-              <BsThreeDotsVertical />
-            </div>
-          </div>
-          <ul className="wd-lessons list-group rounded-0">
-            {courseAssignments.map((assignment: any) => (
-              <li className="wd-lesson list-group-item p-0" key={assignment._id}>
-                <a className="wd-assignment-link text-decoration-none text-black"
-                  href={`#/Kanbas/Courses/${cid}/Assignments/${assignment._id}`} >
-                  <AssignmentCard
-                    title={assignment.title}
-                    info={{
-                      modules: assignment.modules,
-                      notAvailable: formatDateTime(assignment.notAvailable),
-                      due: formatDateTime(assignment.due),
-                    }}
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </li>
-      </ul>
-    </div>
-  );
+    return (
+        <div id="wd-assignments">
+            <AssignmentControl />
+            <br />
+            <br />
+            <ul id="wd-modules" className="list-group rounded-0">
+                <li className="wd-module list-group-item p-0 mb-5 fs-5 border-gray">
+                    <div className="wd-title p-3 ps-2 bg-secondary" style={{ display: "flex" }}>
+                        <BsGripVertical className="me-2 fs-3" />
+                        <FaCaretDown className="me-1 fs-3" />
+                        ASSIGNMENTS
+                        <AssignmentsControlButtons />
+                    </div>
+                    {assignmentArray.map((assignment: any) => (
+                        currentUser.role === 'FACULTY' ?
+                            <AssignmentItem _id={assignment._id} title={assignment.title} availabilityDate={assignment.availabilityDate} dueDate={assignment.dueDate} points={assignment.points} link={`#/Kanbas/Courses/${cid}/Assignments/${assignment._id}`} />
+                            :
+                            <AssignmentItem _id={assignment._id} title={assignment.title} availabilityDate={assignment.availabilityDate} dueDate={assignment.dueDate} points={assignment.points} link={`#/Kanbas/Courses/${cid}/Assignments`} />
+                    ))}
+                </li>
+            </ul>
+        </div>
+    );
 }
