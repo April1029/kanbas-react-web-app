@@ -31,6 +31,7 @@ export const updateCourse = async (course: any) => {
 
 export const findModulesForCourse = async (courseId: string) => {
   const response = await axiosWithCredentials.get(`${COURSES_API}/${courseId}/modules`);
+  console.log('Modules:', response.data);
 
   return response.data;
 };

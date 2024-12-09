@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { setEnrollments } from "./reducer";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -24,15 +24,17 @@ export default function Dashboard(
     const [showAllCourses, setShowAllCourses] = useState(false);
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchMyEnrollments = async () => {
             dispatch(setEnrollments(await dashboardClient.fetchMyEnrollments(currentUser._id)));
         };
         fetchMyEnrollments();
     }, []);
+
     useEffect(() => {
         setCoursesToShow(showAllCourses ? courses : courses.filter(course => {
-            console.log(enrollments)
+            console.log('Checking course enrollment:', course._id);
             if (enrollments.find((enrollment: any) => enrollment.course === course._id)) {
                 return course;
             }
@@ -51,7 +53,12 @@ export default function Dashboard(
         <div id="wd-dashboard">
             <h1 id="wd-dashboard-title">
                 Dashboard
-                <button onClick={() => { setEnrolling(!enrolling); setShowAllCourses(!showAllCourses); }} className="float-end btn btn-primary" >
+                <button onClick={() => {
+                    setEnrolling(!enrolling);
+                    setShowAllCourses(!showAllCourses);
+                    console.log('Enrolling state:', enrolling); 
+                    console.log('Show All Courses state:', showAllCourses); 
+                }} className="float-end btn btn-primary" >
                     {enrolling ? "My Courses" : "All Courses"}
                 </button>
             </h1 >
@@ -101,6 +108,7 @@ export default function Dashboard(
             <div id="wd-dashboard-courses" className="row g-4">
                 <div className="row row-cols-1 row-cols-md-5 g-4">
                     {coursesToShow.map((course: any) => {
+                        console.log('Rendering course:', course.name, 'Enrolled:', course.enrolled); 
                         return (
                             <div className="wd-dashboard-course col" style={{ width: "300px" }}>
                                 <div className="card rounded-3 overflow-hidden shadow" style={{ height: "100%", display: 'flex', flexDirection: 'column' }}>

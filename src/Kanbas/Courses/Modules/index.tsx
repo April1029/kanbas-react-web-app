@@ -16,12 +16,25 @@ export default function Modules() {
 
     const dispatch = useDispatch();
     const fetchModules = async () => {
-        const modules = await coursesClient.findModulesForCourse(cid as string);
-        dispatch(setModules(modules));
+        try {
+            console.debug("Fetching modules for course:", cid);
+            const modules = await coursesClient.findModulesForCourse(cid as string);
+            console.debug("Modules fetched:", modules);
+            dispatch(setModules(modules));
+        } catch (error) {
+            console.error("Error fetching modules:", error);
+        }
     };
-    useEffect(() => {
-        fetchModules();
-    }, []);
+
+     useEffect(() => {
+        if (cid) {
+            console.debug("Course ID detected:", cid);
+            fetchModules();
+        } else {
+            console.warn("No course ID provided.");
+        }
+    }, [cid]);
+    
     const createModuleForCourse = async () => {
         if (!cid) {
             return;
